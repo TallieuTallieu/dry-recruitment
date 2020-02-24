@@ -10,8 +10,9 @@ use Oak\ServiceProvider;
 use Tnt\Recruitment\Admin\VacancyManager;
 use Tnt\Recruitment\Contracts\VacancyRepositoryInterface;
 use Tnt\Recruitment\Revisions\CreateVacancyTable;
+use Tnt\Recruitment\Revisions\UpdateColumnTypes;
 
-class VacancyServiceProvider extends ServiceProvider
+class RecruitmentServiceProvider extends ServiceProvider
 {
     public function boot(ContainerInterface $app)
     {
@@ -23,6 +24,7 @@ class VacancyServiceProvider extends ServiceProvider
 
             $migrator->setRevisions([
                 CreateVacancyTable::class,
+                UpdateColumnTypes::class,
             ]);
 
             $app->get(MigrationManager::class)
