@@ -1,10 +1,10 @@
 {
-  "name": "dietervyncke/dry-recruitment",
+  "name": "tallieutallieu/dry-recruitment",
   "description": "Dry vacancy",
   "type": "library",
   "require": {
-    "reinvanoyen/oak": "^1.0.6",
-    "dietervyncke/dry-dbi": "^1.0.2"
+    "tallieutallieu/oak": "^1.0.6",
+    "tallieutallieu/dry-dbi": "^1.0.2"
   },
   "autoload": {
     "psr-4": {
