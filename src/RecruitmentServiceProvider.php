@@ -31,21 +31,11 @@ class RecruitmentServiceProvider extends ServiceProvider
             $app->get(MigrationManager::class)
                 ->addMigrator($migrator);
         }
-
-        $this->registerAdminModules($app);
     }
 
-    private function registerAdminModules(ContainerInterface $app)
+    public function provides(): array
     {
-        $languages = $app->get(RepositoryInterface::class)->get('recruitment.languages', [
-            'nl',
-            'en',
-            'fr'
-        ]);
-
-        array_unshift(\dry\admin\Router::$modules, new VacancyManager([
-            'languages' => $languages,
-        ]));
+        return [VacancyManagerInterface::class];
     }
 
     public function register(ContainerInterface $app)
@@ -59,6 +49,14 @@ class RecruitmentServiceProvider extends ServiceProvider
 
     private function registerManager(ContainerInterface $app)
     {
-        return new VacancyManager();
+        $languages = $app->get(RepositoryInterface::class)->get('recruitment.languages', [
+            'nl',
+            'en',
+            'fr'
+        ]);
+
+        return new VacancyManager([
+            'languages' => $languages,
+        ]);
     }
 }
