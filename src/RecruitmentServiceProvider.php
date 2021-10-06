@@ -8,6 +8,7 @@ use Oak\Migration\MigrationManager;
 use Oak\Migration\Migrator;
 use Oak\ServiceProvider;
 use Tnt\Recruitment\Admin\VacancyManager;
+use Tnt\Recruitment\Contracts\VacancyManagerInterface;
 use Tnt\Recruitment\Contracts\VacancyRepositoryInterface;
 use Tnt\Recruitment\Revisions\CreateVacancyTable;
 use Tnt\Recruitment\Revisions\UpdateColumnTypes;
@@ -50,5 +51,14 @@ class RecruitmentServiceProvider extends ServiceProvider
     public function register(ContainerInterface $app)
     {
         $app->set(VacancyRepositoryInterface::class, VacancyRepository::class);
+
+        $app->set(VacancyManagerInterface::class, function() use ($app) {
+            return $this->registerManager($app);
+        });
+    }
+
+    private function registerManager(ContainerInterface $app)
+    {
+        return new VacancyManager();
     }
 }
