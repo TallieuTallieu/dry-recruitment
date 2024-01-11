@@ -29,6 +29,7 @@ class VacancyManager extends Manager
     public function __construct(array $kwargs = [])
     {
         $languages = [];
+        $requiredLanguages = [];
 
         extract($kwargs, EXTR_IF_EXISTS);
 
@@ -43,12 +44,12 @@ class VacancyManager extends Manager
         foreach ($languages as $language) {
             $generalComponents[$language] = [
                 new StringEdit('title_'.$language, [
-                    'v8n_required' => TRUE,
+                    'v8n_required' => in_array($language, $requiredLanguages),
                     'suggest_slug' => 'slug_'.$language,
                     'label' => 'title',
                 ]),
                 new StringEdit('slug_'.$language, [
-                    'v8n_required' => TRUE,
+                    'v8n_required' => in_array($language, $requiredLanguages),
                     'handle_duplicate' => TRUE,
                     'slugify_on_blur' => TRUE,
                     'label' => 'slug',

@@ -55,8 +55,11 @@ class RecruitmentServiceProvider extends ServiceProvider
             'fr'
         ]);
 
+        $requiredLanguages = $app->get(RepositoryInterface::class)->get('recruitment.required_languages', $languages);
+
         return new VacancyManager([
             'languages' => $languages,
+            'requiredLanguages' => $requiredLanguages
         ]);
     }
 }
