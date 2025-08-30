@@ -2,6 +2,7 @@
 
 namespace Tnt\Recruitment\Admin;
 
+use app\container\Application;
 use dry\admin\component\BooleanEdit;
 use dry\admin\component\BooleanView;
 use dry\admin\component\I18nSwitcher;
@@ -22,12 +23,19 @@ use dry\orm\Index;
 use dry\orm\Manager;
 use dry\orm\paginate\Paginator;
 use dry\orm\sort\DragSorter;
+use Oak\Contracts\Config\RepositoryInterface;
+use Tnt\Blog\Model\BlogPostBlock;
 use Tnt\Recruitment\Model\Vacancy;
+use dry\admin\component\TabbedContent;
+use dry\admin\component\EnumSwitcher;
 
 class VacancyManager extends Manager
 {
     public function __construct(array $kwargs = [])
     {
+        $app = Application::get();
+        $config = $app->get(RepositoryInterface::class);
+
         $languages = [];
         $requiredLanguages = [];
 
@@ -40,6 +48,7 @@ class VacancyManager extends Manager
 
         $generalComponents = [];
         $contentComponents = [];
+        $videoComponents = [];
 
         foreach ($languages as $language) {
             $generalComponents[$language] = [
@@ -80,14 +89,30 @@ class VacancyManager extends Manager
                     'label' => 'contact',
                 ]),
             ];
+
+            if ($config->get('recruitment.allow_video', false)) {
+                $videoTypes = $this->getVideoTypes($language, $config->get('recruitment.video_types', []));
+
+                $videoComponents[$language] = [
+                    new EnumSwitcher('video_type', $videoTypes),
+                ];
+            }
         }
 
         $generalComponentsContainer = new Stack(Stack::VERTICAL, $generalComponents[$languages[0]]);
         $contentComponentsContainer = new Stack(Stack::VERTICAL, $contentComponents[$languages[0]]);
 
+        if ($config->get('recruitment.allow_video', false)) {
+            $videoComponentsContainer = new Stack(Stack::VERTICAL, $videoComponents[$languages[0]]);
+        }
+
         if (count($languages) > 1) {
             $generalComponentsContainer = new I18nSwitcher($generalComponents);
             $contentComponentsContainer = new I18nSwitcher($contentComponents);
+
+            if ($config->get('recruitment.allow_video', false)) {
+                $videoComponentsContainer = new I18nSwitcher($videoComponents);
+            }
         }
 
         $this->actions[] = $create = new Create([
@@ -103,9 +128,21 @@ class VacancyManager extends Manager
             'mode' => Create::MODE_POPUP,
         ]);
 
+        $tabbedContent = [
+            ['General', [
+                $contentComponentsContainer,
+            ]],
+        ];
+
+        if ($config->get('recruitment.allow_video', false)) {
+            $tabbedContent[] = ['Video', [
+                $videoComponentsContainer,
+            ]];
+        }
+
         $this->actions[] = $edit = new Edit([
             new Stack(Stack::HORIZONTAL, [
-                $contentComponentsContainer,
+                new TabbedContent($tabbedContent),
                 new Stack(Stack::VERTICAL, [
                     new Stack(Stack::VERTICAL, $create->components),
                     new BooleanEdit('is_featured'),
@@ -144,5 +181,39 @@ class VacancyManager extends Manager
         $this->index->sorter = new DragSorter('sort_index');
 
         $this->index->paginator = new Paginator(10);
+    }
+
+    private function getVideoTypes(string $language, array $types): array
+    {
+        $videoTypes = [
+            'file' => [Vacancy::VIDEO_TYPE_FILE, 'File', [
+                new Picker('video', [
+                    'v8n_required' => true,
+                    'v8n_mimetype' => [
+                        'video/mp4'
+                    ],
+                ]),
+                new Picker('video_thumb', ['label' => 'video thumbnail']),
+                new StringEdit('media_credit_' . $language, ['label' => 'video credit']),
+            ]],
+            'vimeo' => [Vacancy::VIDEO_TYPE_VIMEO, 'Vimeo', [
+                new StringEdit('video_id', [
+                    'v8n_required' => true
+                ]),
+                new Picker('video_thumb', ['label' => 'video thumbnail']),
+                new StringEdit('media_credit_' . $language, ['label' => 'video credit']),
+            ]],
+            'youtube' => [Vacancy::VIDEO_TYPE_YOUTUBE, 'Youtube', [
+                new StringEdit('video_id', [
+                    'v8n_required' => true
+                ]),
+                new Picker('video_thumb', ['label' => 'video thumbnail']),
+                new StringEdit('media_credit_' . $language, ['label' => 'video credit']),
+            ]],
+        ];
+
+        return array_filter($videoTypes, function ($type, $key) use ($types) {
+            return in_array($key, $types);
+        }, ARRAY_FILTER_USE_BOTH);
     }
 }

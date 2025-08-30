@@ -11,6 +11,7 @@ use Tnt\Recruitment\Admin\VacancyManager;
 use Tnt\Recruitment\Contracts\VacancyManagerInterface;
 use Tnt\Recruitment\Contracts\VacancyRepositoryInterface;
 use Tnt\Recruitment\Revisions\CreateVacancyTable;
+use Tnt\Recruitment\Revisions\UpdateAddVideo;
 use Tnt\Recruitment\Revisions\UpdateColumnTypes;
 
 class RecruitmentServiceProvider extends ServiceProvider
@@ -26,6 +27,7 @@ class RecruitmentServiceProvider extends ServiceProvider
             $migrator->setRevisions([
                 CreateVacancyTable::class,
                 UpdateColumnTypes::class,
+                UpdateAddVideo::class,
             ]);
 
             $app->get(MigrationManager::class)
