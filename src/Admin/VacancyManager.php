@@ -188,7 +188,7 @@ class VacancyManager extends Manager
         $videoTypes = [
             'file' => [Vacancy::VIDEO_TYPE_FILE, 'File', [
                 new Picker('video', [
-                    'v8n_required' => true,
+                    'v8n_required' => false,
                     'v8n_mimetype' => [
                         'video/mp4'
                     ],
