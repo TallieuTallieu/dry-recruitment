@@ -110,8 +110,9 @@ class VacancyManager extends Manager
             $generalComponentsContainer = new I18nSwitcher($generalComponents);
             $contentComponentsContainer = new I18nSwitcher($contentComponents);
 
+            // TODO: re-enable language switcher for video's, currently the data isen't saved because the file picker is in the I18nSwitcher
             if ($config->get('recruitment.allow_video', false)) {
-                $videoComponentsContainer = new I18nSwitcher($videoComponents);
+                //$videoComponentsContainer = new I18nSwitcher($videoComponents);
             }
         }
 
